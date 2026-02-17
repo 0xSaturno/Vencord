@@ -1,0 +1,367 @@
+/* ChannelTabs - Vencord Port */
+/* Theme-agnostic approach:
+   - Backgrounds: color-mix with currentColor (inherits from Discord theme)
+   - Text/icons: custom --ct-text variable set per theme class (dark vs light) */
+
+:root {
+    --channelTabs-tabHeight: 32px;
+    --channelTabs-tabNameFontSize: 13px;
+    --channelTabs-openTabSize: 24px;
+    --channelTabs-tabWidth: 220px;
+    --channelTabs-tabWidthMin: 100px;
+}
+
+/* Text color tokens: set once per theme, used everywhere */
+.theme-dark #vc-channeltabs-root {
+    --ct-text: 255, 255, 255;
+}
+
+.theme-light #vc-channeltabs-root {
+    --ct-text: 0, 0, 0;
+}
+
+/* =================== Root Container (DOM-injected) =================== */
+
+#vc-channeltabs-root {
+    --ct-text: 255, 255, 255;
+    /* default fallback (dark) */
+    display: block !important;
+    width: 100% !important;
+    z-index: 100;
+    flex-shrink: 0;
+    visibility: visible !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    pointer-events: auto !important;
+    position: relative;
+}
+
+/* =================== Tab Bar Container =================== */
+
+.vc-channeltabs-container {
+    display: flex;
+    flex-direction: column;
+    background: color-mix(in srgb, currentColor 8%, transparent);
+    z-index: 100;
+    width: 100%;
+    -webkit-app-region: drag;
+}
+
+.vc-channeltabs-tabContainer {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    padding: 4px 4px 0 4px;
+}
+
+.vc-channeltabs-tabContainer.vc-channeltabs-wrap {
+    flex-wrap: wrap;
+}
+
+.vc-channeltabs-tabContainer::-webkit-scrollbar {
+    display: none;
+}
+
+/* =================== Individual Tab =================== */
+
+.vc-channeltabs-tab {
+    display: flex;
+    align-items: center;
+    height: var(--channelTabs-tabHeight);
+    background: none;
+    border-radius: 6px 6px 0 0;
+    max-width: var(--channelTabs-tabWidth);
+    min-width: var(--channelTabs-tabWidthMin);
+    flex: 1 1 var(--channelTabs-tabWidthMin);
+    margin-bottom: 0;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s ease;
+    -webkit-app-region: no-drag;
+    position: relative;
+}
+
+.vc-channeltabs-tab>div:first-child {
+    display: flex;
+    width: calc(100% - 20px);
+    align-items: center;
+    overflow: hidden;
+}
+
+.vc-channeltabs-tab:not(.vc-channeltabs-selected):hover {
+    background: rgba(var(--ct-text), 0.06);
+}
+
+.vc-channeltabs-tab:not(.vc-channeltabs-selected):active {
+    background: rgba(var(--ct-text), 0.1);
+}
+
+.vc-channeltabs-tab.vc-channeltabs-selected {
+    background: rgba(var(--ct-text), 0.08);
+}
+
+/* =================== Tab Name =================== */
+
+.vc-channeltabs-tabName {
+    margin: 0 6px;
+    font-size: var(--channelTabs-tabNameFontSize);
+    line-height: normal;
+    color: rgba(var(--ct-text), 0.5);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    flex: 1;
+    transition: color 0.1s ease;
+}
+
+.vc-channeltabs-tab:not(.vc-channeltabs-selected):hover .vc-channeltabs-tabName {
+    color: rgba(var(--ct-text), 0.7);
+}
+
+.vc-channeltabs-tab.vc-channeltabs-selected .vc-channeltabs-tabName {
+    color: rgba(var(--ct-text), 0.95);
+    font-weight: 500;
+}
+
+/* =================== Tab Icon =================== */
+
+.vc-channeltabs-tabIcon {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    margin-left: 6px;
+    flex-shrink: 0;
+    object-fit: cover;
+}
+
+.vc-channeltabs-tabIconText {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    margin-left: 6px;
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(var(--ct-text), 0.55);
+    background: rgba(var(--ct-text), 0.08);
+}
+
+/* =================== Close Tab Button =================== */
+
+.vc-channeltabs-closeTab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 18px;
+    width: 18px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    color: rgba(var(--ct-text), 0.55);
+    cursor: pointer;
+    margin-right: 4px;
+    opacity: 0;
+    transition: opacity 0.1s ease, background 0.1s ease, color 0.1s ease;
+}
+
+.vc-channeltabs-tab:hover .vc-channeltabs-closeTab {
+    opacity: 1;
+}
+
+.vc-channeltabs-closeTab:hover {
+    background: var(--status-danger, #ed4245);
+    color: white;
+}
+
+.vc-channeltabs-closeTab svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* =================== New Tab Button =================== */
+
+.vc-channeltabs-newTab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    height: var(--channelTabs-openTabSize);
+    width: 28px;
+    margin: 0 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: rgba(var(--ct-text), 0.55);
+    -webkit-app-region: no-drag;
+    transition: background 0.1s ease, color 0.1s ease;
+}
+
+.vc-channeltabs-newTab:hover {
+    background: rgba(var(--ct-text), 0.06);
+    color: rgba(var(--ct-text), 0.75);
+}
+
+.vc-channeltabs-newTab:active {
+    background: rgba(var(--ct-text), 0.1);
+    color: rgba(var(--ct-text), 0.95);
+}
+
+.vc-channeltabs-newTab svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* =================== Pinned Favourites (inline in tab bar) =================== */
+
+.vc-channeltabs-pinnedFav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--channelTabs-tabHeight);
+    width: 38px;
+    min-width: 38px;
+    flex: 0 0 38px;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    transition: background 0.1s ease;
+    -webkit-app-region: no-drag;
+}
+
+.vc-channeltabs-pinnedFav:hover {
+    background: rgba(var(--ct-text), 0.06);
+}
+
+.vc-channeltabs-pinnedFav:active {
+    background: rgba(var(--ct-text), 0.1);
+}
+
+.vc-channeltabs-pinnedFav.vc-channeltabs-pinnedFavSelected {
+    background: rgba(var(--ct-text), 0.08);
+}
+
+.vc-channeltabs-pinnedFavIcon {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    object-fit: cover;
+}
+
+.vc-channeltabs-pinnedFavIconText {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(var(--ct-text), 0.55);
+    background: rgba(var(--ct-text), 0.08);
+}
+
+.vc-channeltabs-pinnedFavPin {
+    position: absolute;
+    bottom: 3px;
+    right: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(var(--ct-text), 0.35);
+    pointer-events: none;
+}
+
+.vc-channeltabs-pinnedFav:hover .vc-channeltabs-pinnedFavPin {
+    color: rgba(var(--ct-text), 0.6);
+}
+
+.vc-channeltabs-pinnedFavSelected .vc-channeltabs-pinnedFavPin {
+    color: rgba(var(--ct-text), 0.7);
+}
+
+/* Vertical divider between pinned favs and regular tabs */
+.vc-channeltabs-pinnedDivider {
+    width: 1px;
+    height: 18px;
+    background: rgba(var(--ct-text), 0.15);
+    margin: 0 4px;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+/* =================== Compact Style =================== */
+
+.vc-channeltabs-compact {
+    --channelTabs-tabHeight: 22px;
+    --channelTabs-tabNameFontSize: 12px;
+    --channelTabs-openTabSize: 18px;
+}
+
+/* =================== Drag Indicator =================== */
+
+.vc-channeltabs-tab.vc-channeltabs-dragOver {
+    border-left: 2px solid var(--brand-500, #5865f2);
+}
+
+/* =================== Context Menu =================== */
+
+/* Portaled to body — needs its own --ct-text since it's outside #vc-channeltabs-root */
+.vc-channeltabs-contextMenu {
+    --ct-text: 255, 255, 255;
+    /* default dark */
+    position: fixed;
+    z-index: 10000;
+    min-width: 180px;
+    padding: 6px;
+    border-radius: 8px;
+    background: rgba(var(--ct-text), 0.06);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(var(--ct-text), 0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    -webkit-app-region: no-drag;
+}
+
+.theme-light .vc-channeltabs-contextMenu {
+    --ct-text: 0, 0, 0;
+}
+
+.vc-channeltabs-contextMenuItem {
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: rgba(var(--ct-text), 0.85);
+    cursor: pointer;
+    transition: background 0.1s ease;
+    user-select: none;
+}
+
+.vc-channeltabs-contextMenuItem:hover {
+    background: rgba(var(--ct-text), 0.1);
+}
+
+.vc-channeltabs-contextMenuDanger {
+    color: var(--status-danger, #ed4245);
+}
+
+.vc-channeltabs-contextMenuDanger:hover {
+    background: rgba(237, 66, 69, 0.15);
+}
+
+.vc-channeltabs-contextMenuDisabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.vc-channeltabs-contextMenuDisabled:hover {
+    background: none;
+}
