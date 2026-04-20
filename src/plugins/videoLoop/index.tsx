@@ -31,6 +31,20 @@ function injectLoopButton(video: HTMLVideoElement) {
     if (video.dataset.vcLoopInjected) return;
     video.dataset.vcLoopInjected = "true";
 
+    // Ignore streams (screenshares, camera streams)
+    if (video.srcObject) return;
+
+    // Ignore videos specifically sourced from Discord's UI asset endpoints
+    const src = (video.src || video.currentSrc || "").toLowerCase();
+    if (
+        src.includes("nameplate") ||
+        src.includes("avatar-decoration") ||
+        src.includes("profile-effect")
+    ) return;
+
+    // Ignore animated profile UI elements (nameplates, avatar decorations, profile effects)
+    if (video.closest('svg, [class*="nameplate"], [class*="avatarDecoration"], [class*="profileEffects"], [class^="panels_"], [class*=" panels_"], [class*="sidebar_"], [class*="userPopout"], [class*="userProfile"], [class*="accountProfile"]')) return;
+
     // Apply default loop setting
     if (settings.store.loopByDefault) {
         video.loop = true;
