@@ -273,7 +273,7 @@ const settings = definePluginSettings({
 export default definePlugin({
     name: "ScreenShareFollow",
     description: "Automatically switches your shared screen to whichever monitor your mouse cursor is on",
-    authors: [Devs.Saturn],
+    authors: [{ name: "Saturn", id: 965286897662443570n }],
     settings,
 
     toolboxActions: {

@@ -126,7 +126,7 @@ function processExistingVideos() {
 export default definePlugin({
     name: "VideoLoop",
     description: "Adds a loop toggle button to video embeds so you can replay them endlessly",
-    authors: [Devs.Ven], // Replace with your own author entry if submitting
+    authors: [{ name: "Saturn", id: 965286897662443570n }],
     settings,
 
     start() {

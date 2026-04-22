@@ -17,14 +17,14 @@ let origTransitionToChannel: any = null;
 export default definePlugin({
     name: "NoForwardNavigation",
     description: "Prevents Discord from automatically switching channels right after you forward a message.",
-    authors: [{ id: 0n, name: "Vencord User" }],
+    authors: [{ name: "Saturn", id: 965286897662443570n }],
     settings,
-    
+
     start() {
         if (!ChannelRouter) return;
 
         origTransitionToChannel = ChannelRouter.transitionToChannel;
-        ChannelRouter.transitionToChannel = function(...args: any[]) {
+        ChannelRouter.transitionToChannel = function (...args: any[]) {
             if (settings.store.preventNavigation) {
                 const stack = new Error().stack || "";
                 if (stack.includes("forward") || stack.includes("Promise.then")) {
@@ -37,7 +37,7 @@ export default definePlugin({
             }
         };
     },
-    
+
     stop() {
         if (ChannelRouter && origTransitionToChannel) {
             ChannelRouter.transitionToChannel = origTransitionToChannel;
