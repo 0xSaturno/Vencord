@@ -169,7 +169,7 @@ function removeTabBar() {
 export default definePlugin({
     name: "ChannelTabs",
     description: "Adds browser-like tabs and bookmarks to Discord, allowing you to quickly switch between channels without losing your place.",
-    authors: [Devs.Saturn],
+    authors: [{ name: "Saturn", id: 965286897662443570n }],
     settings,
 
     toolboxActions: {
