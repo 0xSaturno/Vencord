@@ -638,11 +638,10 @@ export const Devs = /* #__PURE__*/ Object.freeze({
         name: "prism",
         id: 390884143749136386n,
     },
-<<<<<<< HEAD
     Saturn: {
         name: "Saturn",
-        id: 965286897662443570n,
-=======
+        id: 965286897662443570n
+    },
     creations: {
         name: "creations",
         id: 209830981060788225n
@@ -650,7 +649,6 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     nightmaresan: {
         name: "NightmareSan",
         id: 304239816466235392n
->>>>>>> upstream/main
     },
 } satisfies Record<string, Dev>);
 
