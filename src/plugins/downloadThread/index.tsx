@@ -176,17 +176,26 @@ async function downloadAllForumThreads(forumChannel: any) {
     try {
         let allThreads: any[] = [];
         
-        // Fetch active threads
+        // Fetch active threads via channel search
         try {
-            const activeRes = await RestAPI.get({
-                url: `/guilds/${forumChannel.guild_id}/threads/active`
-            });
-            if (activeRes.body?.threads) {
-                const active = activeRes.body.threads.filter((t: any) => t.parent_id === forumChannel.id);
-                allThreads = allThreads.concat(active);
+            let offset = 0;
+            let hasMoreActive = true;
+            while (hasMoreActive) {
+                const searchRes = await RestAPI.get({
+                    url: `/channels/${forumChannel.id}/threads/search`,
+                    query: { sort_by: "last_message_time", sort_order: "desc", offset, limit: 25 }
+                });
+                if (searchRes.body?.threads?.length) {
+                    allThreads = allThreads.concat(searchRes.body.threads);
+                    offset += searchRes.body.threads.length;
+                    hasMoreActive = searchRes.body.has_more;
+                } else {
+                    hasMoreActive = false;
+                }
+                await new Promise(r => setTimeout(r, 250));
             }
-        } catch (e) {
-            console.error("Failed to fetch active threads", e);
+        } catch (searchErr) {
+            console.error("Failed to fetch active threads via search", searchErr);
         }
 
         // Fetch archived threads (paginated)
@@ -216,6 +225,13 @@ async function downloadAllForumThreads(forumChannel: any) {
                 hasMore = false;
             }
         }
+        
+        // Deduplicate threads by ID just in case
+        const threadMap = new Map();
+        for (const t of allThreads) {
+            threadMap.set(t.id, t);
+        }
+        allThreads = Array.from(threadMap.values());
         
         if (allThreads.length === 0) {
             updateProgress("CLOSE_ME");
