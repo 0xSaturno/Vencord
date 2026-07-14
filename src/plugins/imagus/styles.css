@@ -8,7 +8,7 @@
     overflow: hidden;
 }
 
-#vc-imagus-overlay img {
+#vc-imagus-overlay img, #vc-imagus-overlay video {
     display: block;
     max-width: 95vw;
     max-height: 95vh;
