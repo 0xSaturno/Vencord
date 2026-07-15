@@ -185,6 +185,9 @@ function handleMouseOver(e: MouseEvent) {
 
     if (target.classList.contains("emoji") || media.src.includes("/assets/")) return;
 
+    // Ignore if inside a native media modal (carousel modal / media viewer)
+    if (target.closest('[class*="carouselModal" i], [class*="modalCarouselWrapper" i], [class*="mediaViewer" i]')) return;
+
     isHovering = true;
     currentMediaSrc = getHighResUrl(media.src);
 
