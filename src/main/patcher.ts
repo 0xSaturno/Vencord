@@ -22,6 +22,7 @@ import { dirname, join } from "path";
 
 import { RendererSettings } from "./settings";
 import { IS_VANILLA } from "./utils/constants";
+import { initWebviewSupport } from "./webviewSupport";
 
 console.log("[Vencord] Starting up...");
 
@@ -42,6 +43,8 @@ app.setAppPath(asarPath);
 
 if (!IS_VANILLA) {
     const settings = RendererSettings.store;
+
+    initWebviewSupport();
 
     // Repatch after host updates on Windows and Linux
     if (process.platform === "win32" || process.platform === "linux") {
@@ -79,6 +82,7 @@ if (!IS_VANILLA) {
             const original = options.webPreferences.preload;
             options.webPreferences.preload = join(__dirname, "preload.js");
             options.webPreferences.sandbox = false;
+            options.webPreferences.webviewTag = true;
 
             if (frameless) {
                 options.frame = false;

@@ -1,0 +1,397 @@
+/*
+ * Vencord, a Discord client mod
+ * Copyright (c) 2025 Vendicated and contributors
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+/* Root container */
+#vc-sidebrowser-root {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 100000;
+    font-family: var(--font-primary, "gg sans", "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif);
+    -webkit-app-region: no-drag !important;
+}
+
+/* Floating Edge Tab to open/close */
+.vc-sidebrowser-edge-tab {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 56px;
+    background: var(--background-secondary, #2b2d31);
+    border: 1px solid var(--background-modifier-accent, rgba(255, 255, 255, 0.12));
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    pointer-events: auto !important;
+    z-index: 100005;
+    box-shadow: -3px 3px 10px rgba(0, 0, 0, 0.45);
+    color: var(--interactive-normal, #b5bac1);
+    transition: width 0.15s ease, background-color 0.15s ease, color 0.15s ease, right 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    -webkit-app-region: no-drag !important;
+}
+
+.vc-sidebrowser-edge-tab:hover {
+    width: 30px;
+    background: var(--background-tertiary, #1e1f22);
+    color: var(--interactive-hover, #dbdee1);
+}
+
+.vc-sidebrowser-edge-tab.vc-tab-open {
+    color: var(--brand-500, #5865f2);
+}
+
+/* Follow the panel edge 1:1 while drag resizing instead of easing behind it */
+.vc-sidebrowser-edge-tab.vc-resizing {
+    transition: none !important;
+    pointer-events: none !important;
+}
+
+.vc-sidebrowser-edge-tab svg {
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
+}
+
+/* Main Sliding Drawer */
+.vc-sidebrowser-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--background-base-lower, var(--background-primary, #313338));
+    border-left: 1px solid var(--background-modifier-accent, rgba(255, 255, 255, 0.12));
+    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.55);
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto !important;
+    z-index: 100002;
+    transform: translateX(100%);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    -webkit-app-region: no-drag !important;
+}
+
+.vc-sidebrowser-drawer.vc-open {
+    transform: translateX(0);
+}
+
+/* During drag resize, disable animation and transitions for responsiveness */
+.vc-sidebrowser-drawer.vc-resizing {
+    transition: none !important;
+}
+
+/* Drag Resize Handle on left border */
+.vc-sidebrowser-resizer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px;
+    bottom: 0;
+    cursor: ew-resize;
+    z-index: 100010;
+    background: transparent;
+    transition: background 0.15s ease;
+    -webkit-app-region: no-drag !important;
+}
+
+.vc-sidebrowser-resizer:hover,
+.vc-sidebrowser-drawer.vc-resizing .vc-sidebrowser-resizer {
+    background: var(--brand-500, #5865f2);
+}
+
+/* Overlay that intercepts mouse events over the webview during drag resize */
+.vc-sidebrowser-drag-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 100009;
+    cursor: ew-resize;
+    pointer-events: auto !important;
+}
+
+/* Navigation Header Bar */
+.vc-sidebrowser-header {
+    display: flex;
+    flex-direction: column;
+    background: var(--background-secondary, #2b2d31);
+    border-bottom: 1px solid var(--background-modifier-accent, rgba(255, 255, 255, 0.08));
+    padding: 8px 10px 6px 14px;
+    gap: 6px;
+    user-select: none;
+    -webkit-app-region: no-drag !important;
+    pointer-events: auto !important;
+    flex-shrink: 0;
+}
+
+.vc-sidebrowser-header * {
+    -webkit-app-region: no-drag !important;
+}
+
+.vc-sidebrowser-nav-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    -webkit-app-region: no-drag !important;
+}
+
+/* Icon Buttons */
+.vc-sidebrowser-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background: transparent;
+    border: none;
+    color: var(--interactive-normal, #b5bac1);
+    cursor: pointer;
+    transition: background-color 0.12s ease, color 0.12s ease, transform 0.1s ease;
+    padding: 0;
+    flex-shrink: 0;
+    pointer-events: auto !important;
+    -webkit-app-region: no-drag !important;
+}
+
+.vc-sidebrowser-btn:hover:not(:disabled) {
+    background: var(--background-modifier-hover, rgba(255, 255, 255, 0.08));
+    color: var(--interactive-hover, #dbdee1);
+}
+
+.vc-sidebrowser-btn:active:not(:disabled) {
+    background: var(--background-modifier-active, rgba(255, 255, 255, 0.12));
+    color: var(--interactive-active, #ffffff);
+    transform: scale(0.96);
+}
+
+.vc-sidebrowser-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.vc-sidebrowser-btn.vc-btn-danger:hover {
+    background: var(--button-danger-background, #da373c);
+    color: #ffffff;
+}
+
+.vc-sidebrowser-btn svg {
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
+}
+
+/* Omnibar Address & Search Bar */
+.vc-sidebrowser-omnibar-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: var(--channeltextarea-background, var(--background-tertiary, #1e1f22));
+    border-radius: 6px;
+    padding: 0 8px;
+    border: 1px solid transparent;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    height: 30px;
+    min-width: 0;
+    pointer-events: auto !important;
+    -webkit-app-region: no-drag !important;
+}
+
+.vc-sidebrowser-omnibar-wrapper:focus-within {
+    border-color: var(--brand-500, #5865f2);
+    box-shadow: 0 0 0 1px var(--brand-500, #5865f2);
+}
+
+.vc-sidebrowser-omnibar-icon {
+    display: flex;
+    align-items: center;
+    color: var(--interactive-muted, #80848e);
+    margin-right: 6px;
+    flex-shrink: 0;
+    pointer-events: none;
+}
+
+.vc-sidebrowser-omnibar-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+.vc-sidebrowser-omnibar {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-normal, #dbdee1);
+    font-size: 13px;
+    line-height: 20px;
+    min-width: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    pointer-events: auto !important;
+    -webkit-app-region: no-drag !important;
+}
+
+.vc-sidebrowser-omnibar::placeholder {
+    color: var(--text-muted, #80848e);
+}
+
+/* Loading Progress Bar */
+.vc-sidebrowser-progress-bar {
+    height: 2px;
+    width: 100%;
+    background: transparent;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.vc-sidebrowser-progress-bar.vc-loading::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 40%;
+    background: var(--brand-500, #5865f2);
+    animation: vc-sidebrowser-indeterminate 1.2s infinite ease-in-out;
+    border-radius: 2px;
+}
+
+@keyframes vc-sidebrowser-indeterminate {
+    0% {
+        left: -40%;
+        width: 40%;
+    }
+    50% {
+        left: 30%;
+        width: 60%;
+    }
+    100% {
+        left: 100%;
+        width: 40%;
+    }
+}
+
+/* Quick Bookmarks Bar */
+.vc-sidebrowser-bookmarks {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-top: 2px;
+    -webkit-app-region: no-drag !important;
+    pointer-events: auto !important;
+}
+
+.vc-sidebrowser-bookmarks::-webkit-scrollbar {
+    display: none;
+}
+
+.vc-sidebrowser-bookmark-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: var(--background-modifier-hover, rgba(255, 255, 255, 0.05));
+    color: var(--text-muted, #949ba4);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    white-space: nowrap;
+    transition: background 0.12s ease, color 0.12s ease;
+    flex-shrink: 0;
+    pointer-events: auto !important;
+    -webkit-app-region: no-drag !important;
+}
+
+.vc-sidebrowser-bookmark-chip:hover {
+    background: var(--background-modifier-selected, rgba(255, 255, 255, 0.1));
+    color: var(--interactive-hover, #ffffff);
+}
+
+.vc-sidebrowser-bookmark-chip svg {
+    width: 11px;
+    height: 11px;
+}
+
+.vc-sidebrowser-bookmark-add {
+    padding: 2px 6px;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.vc-sidebrowser-bookmark-add:hover {
+    opacity: 1;
+}
+
+/* Web View Container */
+.vc-sidebrowser-viewport {
+    flex: 1 1 0%;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+/* Electron sizes the guest frame inside <webview> with flexbox; display: block collapses it to 150px */
+.vc-sidebrowser-webview {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: flex;
+    background: #ffffff;
+}
+
+
+/* Volume control */
+.vc-sidebrowser-volume {
+    position: relative;
+    display: flex;
+    flex-shrink: 0;
+}
+
+.vc-sidebrowser-volume-popover {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 100020;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--background-floating, #111214);
+    border: 1px solid var(--background-modifier-accent, rgba(255, 255, 255, 0.12));
+    border-radius: 6px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
+    -webkit-app-region: no-drag !important;
+}
+
+.vc-sidebrowser-volume-slider {
+    width: 120px;
+    accent-color: var(--brand-500, #5865f2);
+    cursor: pointer;
+}
+
+.vc-sidebrowser-volume-label {
+    min-width: 34px;
+    text-align: right;
+    font-size: 12px;
+    color: var(--text-normal, #dbdee1);
+    font-variant-numeric: tabular-nums;
+}
