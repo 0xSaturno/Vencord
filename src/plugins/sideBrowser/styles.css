@@ -70,7 +70,6 @@
     bottom: 0;
     background: var(--background-base-lower, var(--background-primary, #313338));
     border-left: 1px solid var(--background-modifier-accent, rgba(255, 255, 255, 0.12));
-    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.55);
     display: flex;
     flex-direction: column;
     pointer-events: auto !important;
