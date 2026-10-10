@@ -1,0 +1,6 @@
+.vc-textExpander-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr max-content;
+    gap: 0.5em;
+    align-items: start;
+}
