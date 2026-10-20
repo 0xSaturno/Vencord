@@ -1,6 +1,6 @@
 import { addChatBarButton, ChatBarButton, ChatBarProps, removeChatBarButton } from "@api/ChatButtons";
 import definePlugin from "@utils/types";
-import { React, RestAPI, showToast, Toasts, Menu } from "@webpack/common";
+import { React, RestAPI, showToast, Menu } from "@webpack/common";
 import { zipSync, strToU8 } from "fflate";
 
 function DownloadIcon(props: any) {
@@ -108,10 +108,10 @@ function DownloadButtonRender(props: ChatBarProps) {
             a.click();
             URL.revokeObjectURL(url);
 
-            showToast("Thread downloaded successfully!", Toasts.SUCCESS);
+            showToast({ text: "Thread downloaded successfully!", variant: "success" });
         } catch (e) {
             console.error(e);
-            showToast("Failed to download thread.", Toasts.FAILURE);
+            showToast({ text: "Failed to download thread.", variant: "critical" });
         } finally {
             setIsDownloading(false);
         }
@@ -127,52 +127,19 @@ function DownloadButtonRender(props: ChatBarProps) {
     );
 }
 
-let currentProgressText = "Starting...";
-let setProgressText: ((text: string) => void) | null = null;
-
-function ProgressToastContent() {
-    const [text, setText] = React.useState(currentProgressText);
-    React.useEffect(() => {
-        setProgressText = setText;
-        return () => { setProgressText = null; };
-    }, []);
-
-    React.useEffect(() => {
-        if (text === "CLOSE_ME") {
-            const el = document.getElementById("vc-mass-dl-toast");
-            if (el) {
-                const container = el.closest('[class*="toast_"]');
-                if (container) {
-                    (container as HTMLElement).style.display = "none";
-                }
-            }
-        }
-    }, [text]);
-
-    return <span id="vc-mass-dl-toast">{text !== "CLOSE_ME" ? text : ""}</span>;
-}
-
 let isDownloadingForum = false;
 async function downloadAllForumThreads(forumChannel: any) {
     if (isDownloadingForum) {
-        showToast("Already downloading a forum!", Toasts.FAILURE);
+        showToast({ text: "Already downloading a forum!", variant: "critical" });
         return;
     }
     isDownloadingForum = true;
-    currentProgressText = "Fetching forum threads...";
-    
-    const toastData = Toasts.create((<ProgressToastContent />) as any, Toasts.Type.INFO, {
-        duration: 9999999
-    });
-    Toasts.show(toastData);
 
-    const updateProgress = (msg: string) => {
-        currentProgressText = msg;
-        if (setProgressText) setProgressText(msg);
-    };
+    // The new toast API has no live-updating toast, so progress is shown as occasional toasts.
+    const updateProgress = (msg: string) => showToast({ text: msg });
 
     updateProgress("Fetching forum threads...");
-    
+
     try {
         let allThreads: any[] = [];
         
@@ -234,8 +201,7 @@ async function downloadAllForumThreads(forumChannel: any) {
         allThreads = Array.from(threadMap.values());
         
         if (allThreads.length === 0) {
-            updateProgress("CLOSE_ME");
-            showToast("No threads found in this forum.", Toasts.FAILURE);
+            showToast({ text: "No threads found in this forum.", variant: "critical" });
             isDownloadingForum = false;
             return;
         }
@@ -245,7 +211,7 @@ async function downloadAllForumThreads(forumChannel: any) {
         // Download each thread
         for (let i = 0; i < allThreads.length; i++) {
             const thread = allThreads[i];
-            updateProgress(`Downloading thread ${i + 1}/${allThreads.length}: ${thread.name}...`);
+            if (i % 25 === 0) updateProgress(`Downloading thread ${i + 1}/${allThreads.length}...`);
             try {
                 await fetchAndFormatThread(thread, zipData);
             } catch (e) {
@@ -265,12 +231,10 @@ async function downloadAllForumThreads(forumChannel: any) {
         a.click();
         URL.revokeObjectURL(url);
         
-        updateProgress("CLOSE_ME");
-        showToast(`Successfully downloaded ${allThreads.length} threads!`, Toasts.SUCCESS);
+        showToast({ text: `Successfully downloaded ${allThreads.length} threads!`, variant: "success" });
     } catch (e) {
         console.error(e);
-        updateProgress("CLOSE_ME");
-        showToast("Failed to download forum threads.", Toasts.FAILURE);
+        showToast({ text: "Failed to download forum threads.", variant: "critical" });
     } finally {
         isDownloadingForum = false;
     }
