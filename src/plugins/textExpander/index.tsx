@@ -9,7 +9,7 @@ import "./styles.css";
 import { definePluginSettings } from "@api/Settings";
 import { Button } from "@components/Button";
 import { Flex } from "@components/Flex";
-import { HeadingSecondary } from "@components/Heading";
+import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { classNameFactory } from "@utils/css";
 import { Logger } from "@utils/Logger";
@@ -84,7 +84,7 @@ function ShortcutEditor() {
     return (
         <>
             <div>
-                <HeadingSecondary>Shortcuts</HeadingSecondary>
+                <Heading tag="h2">Shortcuts</Heading>
                 <Paragraph>
                     Type a shortcut in any chat box and it is replaced with its expansion right away.
                     Expansions may contain <code>{CLIP_TAG}</code> (clipboard contents), <code>%d(format)</code> (current
